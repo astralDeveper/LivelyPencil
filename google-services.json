@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "975418502325",
+    "project_id": "livelypencilapp-8086e",
+    "storage_bucket": "livelypencilapp-8086e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975418502325:android:25791f4d4b51d069a122fc",
+        "android_client_info": {
+          "package_name": "com.forcod.livelypencilapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWtqmOKVCaY1kGy0aBdTd5h0h1q6AYAxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

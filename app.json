@@ -1,0 +1,76 @@
+{
+  "expo": {
+    "orientation": "portrait",
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "PORTRAIT"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.0"
+          }
+        }
+      ]
+    ],
+    "splash": {
+      "image": "./app/assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "icon": "./app/assets/images/icon.png",
+    "android": {
+      "versionCode": 3,
+      "googleServicesFile": "./google-services.json",
+      "backgroundColor": "#FFFFFF",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "com.forcod.livelypencilapp",
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "scheme": "acme",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "Lively Pencil",
+    "slug": "livelypencilapp",
+    "version": "1.0.2",
+    "extra": {
+      "eas": {
+        "projectId": "23cda476-e4d9-4ea2-a605-cc50e51d1b17"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.forcod.livelypencilapp",
+      "infoPlist": {
+        "UISupportedInterfaceOrientations": "PORTRAIT"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/23cda476-e4d9-4ea2-a605-cc50e51d1b17"
+    }
+  }
+}

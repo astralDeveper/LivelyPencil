@@ -1,0 +1,267 @@
+import {
+  View,
+  StatusBar,
+  SafeAreaView,
+  Text,
+  Pressable,
+  useWindowDimensions,
+  ToastAndroid,
+  Animated,
+} from "react-native";
+import clsx from "clsx";
+import { Ionicons } from "@expo/vector-icons";
+import { useState, useEffect, useRef } from "react";
+import { Image } from "expo-image";
+import { API_URL } from "@env";
+import store from "store";
+import axios from "axios";
+import OtherPages from "./OtherPages";
+import OtherFollowers from "./OtherFollowers";
+import OtherBooks from "../screens/OtherBooks";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+// $&
+import { Feather } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+import { ScrollView } from "react-native-gesture-handler";
+
+export default function OtherProfile() {
+  //Animation
+  // const renderScene = ({ route }) => {
+  //   switch (route.key) {
+  //     case "pages":
+  //       return <OtherPages id={otherUser._id} onScroll={onScroll} />;
+  //     case "followers":
+  //       return <OtherFollowers id={otherUser._id} onScroll={onScroll} />;
+  //     case "books":
+  //       return <OtherBooks id={otherUser._id} onScroll={onScroll} />;
+  //     default:
+  //       return null;
+  //   }
+  // };
+  // const scrollY = new Animated.Value(0);
+  // const Animateheight = scrollY.interpolate({
+  //   inputRange: [0, 350],
+  //   outputRange: [350, 0],
+  //   extrapolate: "clamp",
+  // });
+
+  // const onScroll = Animated.event(
+  //   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+  //   { useNativeDriver: false }
+  // );
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  };
+
+  const {
+    otherUser,
+    currentUser,
+    setCurrentUser,
+    isParentScrollEnabled,
+    setIsParentScrollEnabled,
+  } = store();
+  const navigation = useNavigation();
+
+  const showDummyMsg = () => {
+    ToastAndroid.show("Website is underconstruction", ToastAndroid.SHORT);
+  };
+
+  const follow = async (item) => {
+    if (currentUser.user.listofFollowing.includes(item._id)) {
+      const newListofFollowing = currentUser.user.listofFollowing.filter(
+        (obj) => obj != item._id
+      );
+
+      const updateUser = {
+        ...currentUser,
+
+        user: {
+          ...currentUser.user,
+          listofFollowing: newListofFollowing,
+        },
+      };
+      //SET STATE
+      setCurrentUser(updateUser);
+
+      // API Call
+      await axios
+        .request(`${API_URL}/users/unfollow/${item._id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentUser.tokens.access.token}`,
+          },
+        })
+        .catch((e) => console.log(e.response.data.message));
+
+      return;
+    } else {
+      const newListofFollowing = [
+        ...currentUser.user.listofFollowing,
+        item._id,
+      ];
+
+      const updateUser = {
+        ...currentUser,
+
+        user: {
+          ...currentUser.user,
+          listofFollowing: newListofFollowing,
+        },
+      };
+      //SET STATE
+      setCurrentUser(updateUser);
+
+      // API Call
+      await axios
+        .request(`${API_URL}/users/follow/${item._id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentUser.tokens.access.token}`,
+          },
+        })
+        .catch((e) => console.log(e.response.data.message));
+    }
+  };
+  const joined = new Date(otherUser?.createdAt);
+  const { height } = useWindowDimensions();
+
+  return (
+    <SafeAreaView
+      // style={{ flex: 1, marginTop: StatusBar.currentHeight || 0 }}
+      style={{ flex: 1 }}
+      className="bg-white"
+    >
+      {/* <Animated.View style={{ height: Animateheight }}> */}
+      {!otherUser?.coverImg ? (
+        <View className="h-36 w-full bg-gray-700 absolute">
+          <Text className="text-center font-Inter-bold text-xl justify-center mt-10 text-white">
+            No Cover
+          </Text>
+        </View>
+      ) : (
+        <Image
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          source={{
+            uri: `${API_URL}/s3/getMedia/${
+              otherUser?.coverImg
+            }?timestamp=${new Date().getTime()}`,
+          }}
+          className="w-full h-36 absolute"
+        />
+      )}
+      <View className=" flex-col ml-2">
+        {/* Checks whether its taken from cache or URL */}
+        <Image
+          source={{
+            uri: otherUser?.profilePicture?.includes("file")
+              ? otherUser?.profilePicture
+              : `${API_URL}/s3/getMedia/${otherUser?.profilePicture}`,
+          }}
+          className="rounded-full w-24 h-24 border-white mt-[18%] border-4"
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
+
+        <View className="flex-col ml-2">
+          <Text className="text-Black text-xl font-Inter-bold">
+            {otherUser?.fullName}
+          </Text>
+          <Text className="text-xs text-gray-400 font-Inter-Black">
+            @
+            {otherUser.nickName
+              ? otherUser?.nickName
+              : otherUser?.email?.split("@")[0]}
+          </Text>
+          <Text className="text-sm text-gray-400 font-Inter-medium">
+            {otherUser.bio ? otherUser.bio : "Who am I?"}
+          </Text>
+          <Text className="font-Inter-medium text-gray-500 text-xs mt-5">
+            <AntDesign name="calendar" size={16} color="gray" /> Joined{" "}
+            {joined.toLocaleDateString("en-GB", options)}
+          </Text>
+          <Pressable
+            onPress={showDummyMsg}
+            className="mt-2 flex-row items-center space-x-2"
+          >
+            <Feather name="link" size={16} color="gray" />
+            <Text className="text-blue-300 font-Inter-Black text-xs">
+              {`livelypencil.com/${
+                otherUser?.nickName || otherUser?.email.split("@")[0]
+              }`}
+            </Text>
+          </Pressable>
+        </View>
+        {/* FOLLOWERS/FOLLOWINGS/ and leave button all in flex-row */}
+        <View className="w-screen px-2 pr-5 justify-between flex-row items-center mt-2">
+          <View className="flex-row space-x-2 ">
+            <View className="flex-row   items-center ">
+              <Text className="text-xs font-Inter-bold text-blue-600">
+                {otherUser?.listofFollowers?.length ||
+                  otherUser?.totalFollowers}
+              </Text>
+              <Text className="text-xs font-Inter-bold"> Followers</Text>
+            </View>
+            <View className="flex-row   items-center ">
+              <Text className="text-xs font-Inter-bold text-blue-600">
+                {otherUser?.listofFollowing?.length ||
+                  otherUser?.totalFollowings}
+              </Text>
+              <Text className="text-xs font-Inter-bold"> Followings</Text>
+            </View>
+          </View>
+          <View>
+            <Pressable
+              onPress={() => follow(otherUser)}
+              className={clsx("px-4 py-1  rounded-full bg-Primary", {
+                "bg-Primary": currentUser.user?.listofFollowing.includes(
+                  otherUser._id
+                ),
+              })}
+            >
+              <Text
+                className={clsx("text-sm text-white  font-Inter-bold", {
+                  "text-white": currentUser.user?.listofFollowing.includes(
+                    otherUser._id
+                  ),
+                })}
+              >
+                {currentUser.user.listofFollowing.includes(otherUser._id)
+                  ? "Leave"
+                  : "Follow"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+      <View className="pt-10">
+        <View className="flex-row justify-around space-x-2 py-4">
+          <Pressable>
+            <Text className="text-Primary font-Inter-bold">Pages</Text>
+          </Pressable>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("OtherFollowers", { id: otherUser._id })
+            }
+          >
+            <Text className="font-Inter-bold text-gray-500">Followers</Text>
+          </Pressable>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("OtherBooks", { id: otherUser._id })
+            }
+          >
+            <Text className="font-Inter-bold text-gray-500">Books</Text>
+          </Pressable>
+        </View>
+      </View>
+      <View className="flex-1 ">
+        <OtherPages id={otherUser._id} />
+      </View>
+    </SafeAreaView>
+  );
+}
