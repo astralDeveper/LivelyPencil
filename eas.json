@@ -1,0 +1,40 @@
+{
+  "cli": {
+    "version": ">= 3.11.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "preview",
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SOCKET_URL": "https://api.livelypencil.com",
+        "EXPO_PUBLIC_API_URL": "https://api.livelypencil.com/dev/v1",
+        "S3": "https://lively-pencil.s3.eu-west-3.amazonaws.com"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "channel": "production",
+      "distribution": "store"
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

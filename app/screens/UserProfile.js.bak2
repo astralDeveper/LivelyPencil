@@ -1,0 +1,154 @@
+import {
+  View,
+  StatusBar,
+  SafeAreaView,
+  Text,
+  Pressable,
+  ToastAndroid,
+  useWindowDimensions,
+} from "react-native";
+import { useRef, useState } from "react";
+import UserFollowers from "./UserFollowers";
+import store from "store";
+// $&
+import { Image } from "expo-image";
+import { API_URL } from "@env";
+import { TabView, TabBar, SceneMap } from "react-native-tab-view";
+import UserPages from "./UserPages";
+import UserBooks from "./UserBooks";
+import { AntDesign } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
+import { ScrollView } from "react-native";
+
+export default function UserProfile() {
+  const { currentUser } = store();
+  const navigation = useNavigation();
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  };
+  const joined = new Date(currentUser?.user?.createdAt);
+  const showDummyMsg = () => {
+    ToastAndroid.show("Website is underconstruction", ToastAndroid.SHORT);
+  };
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        marginTop: StatusBar.currentHeight || 0,
+        backgroundColor: "white",
+      }}
+    >
+      {!currentUser?.user?.coverImg ? (
+        <Pressable
+          onPress={() => navigation.navigate("UserUpdate")}
+          className="h-36 w-full bg-gray-700 absolute "
+        >
+          <Text className="text-center font-Inter-bold text-xl justify-center mt-10 text-white">
+            Add Cover
+          </Text>
+        </Pressable>
+      ) : (
+        <Image
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          source={{
+            uri: currentUser.user.coverImg.includes("file")
+              ? currentUser.user.coverImg
+              : `${API_URL}/s3/getMedia/${
+                  currentUser.user.coverImg
+                }?timestamp=${new Date().getTime()}`,
+          }}
+          className="w-full h-36 absolute"
+        />
+      )}
+
+      <Pressable onPress={() => navigation.navigate("UserUpdate")}>
+        <Image
+          source={{
+            uri: currentUser.user.profilePicture.includes("file")
+              ? currentUser.user.profilePicture
+              : `${API_URL}/s3/getMedia/${
+                  currentUser.user.profilePicture
+                }?timestamp=${new Date().getTime()}`,
+          }}
+          className="rounded-full w-24 h-24 border-4 border-white mt-16 ml-1"
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
+      </Pressable>
+      <View className=" flex-col   ml-4 justify-center ">
+        {/* Checks whether its taken from cache or URL */}
+
+        <Text className="text-Black  text-xl font-Inter-bold">
+          {currentUser.user?.fullName}
+        </Text>
+        <Text className="text-xs text-gray-400 font-Inter-Black">
+          @
+          {currentUser.user.nickName
+            ? currentUser.user.nickName
+            : currentUser.user?.email.split("@")[0]}
+        </Text>
+        <Text className=" text-sm text-gray-400 font-Inter-medium ">
+          {currentUser.user.bio ? currentUser.user.bio : "Who am I?"}
+        </Text>
+        <Text className="font-Inter-medium text-gray-500 text-xs mt-5">
+          <AntDesign name="calendar" size={16} color="gray" /> Joined{" "}
+          {joined.toLocaleDateString("en-GB", options)}
+        </Text>
+        <Pressable
+          onPress={showDummyMsg}
+          className="mt-2 flex-row items-center space-x-2"
+        >
+          <Feather name="link" size={16} color="gray" />
+          <Text className="text-blue-300 font-Inter-Black">
+            {`livelypencil.com/${
+              currentUser.user.nickName || currentUser.user.email.split("@")[0]
+            }`}
+          </Text>
+        </Pressable>
+        <View className="flex-row space-x-2 mt-4">
+          <View className="flex-row   items-center ">
+            <Text className="text-xs font-Inter-bold text-blue-600">
+              {currentUser.user.listofFollowers.length}
+            </Text>
+            <Text className="text-xs font-Inter-bold"> Followers</Text>
+          </View>
+          <View className="flex-row   items-center ">
+            <Text className="text-xs font-Inter-bold text-blue-600">
+              {currentUser.user.listofFollowing.length}
+            </Text>
+            <Text className="text-xs font-Inter-bold"> Followings</Text>
+          </View>
+        </View>
+      </View>
+      {/* <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        renderTabBar={renderTabBar}
+      /> */}
+      <View className="">
+        <View className="flex-row justify-around space-x-2 py-4">
+          <Pressable>
+            <Text className="text-Primary font-Inter-bold">Pages</Text>
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate("userFollowers")}>
+            <Text className="font-Inter-bold text-gray-500">Followers</Text>
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate("userBooks")}>
+            <Text className="font-Inter-bold text-gray-500">Books</Text>
+          </Pressable>
+        </View>
+      </View>
+      <View className="flex-1 ">
+        <UserPages
+        // setParentScroll={setParentScroll}
+        // parentScroll={parentScroll}
+        />
+      </View>
+      {/* </ScrollView> */}
+    </SafeAreaView>
+  );
+}
